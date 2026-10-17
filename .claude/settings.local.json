@@ -29,7 +29,8 @@
       "Bash(./venv/Scripts/python.exe -m py_compile dashboard/app.py dashboard/retro.py src/config.py src/predict.py src/run_pipeline.py)",
       "Bash(taskkill //F //PID 24476)",
       "Bash(netstat -ano)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git config *)"
     ]
   }
 }
