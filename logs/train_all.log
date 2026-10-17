@@ -1,0 +1,228 @@
+===== TRAINING RELIANCE =====
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x000001CE405A1D00> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x000001CE40D2A840> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+
+--- RELIANCE / Random Forest ---
+  Fold 1: acc 0.375 | macroF1 0.377 | Sharpe -1.00
+  Fold 2: acc 0.355 | macroF1 0.352 | Sharpe 1.03
+  Fold 3: acc 0.278 | macroF1 0.272 | Sharpe -0.36
+  Fold 4: acc 0.302 | macroF1 0.262 | Sharpe 0.92
+  FINAL TEST: acc 0.364 | macroF1 0.331 | Sharpe -0.11 | MaxDD -33.4%
+  live model saved (trained through 2026-10-15)
+
+--- RELIANCE / XGBoost ---
+  Fold 1: acc 0.367 | macroF1 0.368 | Sharpe -0.51
+  Fold 2: acc 0.323 | macroF1 0.319 | Sharpe 0.42
+  Fold 3: acc 0.315 | macroF1 0.310 | Sharpe -0.02
+  Fold 4: acc 0.322 | macroF1 0.270 | Sharpe -0.08
+  FINAL TEST: acc 0.354 | macroF1 0.303 | Sharpe -1.13 | MaxDD -41.2%
+  live model saved (trained through 2026-10-15)
+
+--- RELIANCE / LSTM ---
+  Fold 1: acc 0.339 | macroF1 0.288 | Sharpe -0.03
+  Fold 2: acc 0.290 | macroF1 0.288 | Sharpe 0.29
+  Fold 3: acc 0.371 | macroF1 0.331 | Sharpe 0.26
+  Fold 4: acc 0.376 | macroF1 0.333 | Sharpe 0.69
+  FINAL TEST: acc 0.341 | macroF1 0.328 | Sharpe 0.30 | MaxDD -15.9%
+  live model saved (trained through 2026-10-15)
+
+=== Final test comparison — Reliance Industries ===
+        model  accuracy  macro_f1  sharpe   cagr  max_drawdown
+Random Forest     0.364     0.331  -0.110 -0.028        -0.334
+      XGBoost     0.354     0.303  -1.128 -0.149        -0.412
+         LSTM     0.341     0.328   0.297  0.036        -0.159
+    Always UP     0.313     0.159   0.020 -0.019        -0.272
+   Buy & Hold       NaN       NaN   0.020 -0.019        -0.272
+
+Saved -> results\reliance_metrics.csv
+===== DONE RELIANCE =====
+===== TRAINING INFY =====
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x000002AC5ACADD00> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x000002AC6345B1A0> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+
+--- INFY / Random Forest ---
+  Fold 1: acc 0.406 | macroF1 0.368 | Sharpe -0.31
+  Fold 2: acc 0.359 | macroF1 0.359 | Sharpe -0.27
+  Fold 3: acc 0.383 | macroF1 0.346 | Sharpe 0.21
+  Fold 4: acc 0.363 | macroF1 0.264 | Sharpe 1.35
+  FINAL TEST: acc 0.313 | macroF1 0.301 | Sharpe -1.29 | MaxDD -53.4%
+  live model saved (trained through 2026-10-15)
+
+--- INFY / XGBoost ---
+  Fold 1: acc 0.398 | macroF1 0.367 | Sharpe -0.52
+  Fold 2: acc 0.371 | macroF1 0.370 | Sharpe 0.38
+  Fold 3: acc 0.399 | macroF1 0.367 | Sharpe 0.49
+  Fold 4: acc 0.367 | macroF1 0.244 | Sharpe 1.62
+  FINAL TEST: acc 0.342 | macroF1 0.317 | Sharpe -0.64 | MaxDD -37.7%
+  live model saved (trained through 2026-10-15)
+
+--- INFY / LSTM ---
+  Fold 1: acc 0.394 | macroF1 0.269 | Sharpe 0.97
+  Fold 2: acc 0.387 | macroF1 0.381 | Sharpe 0.60
+  Fold 3: acc 0.335 | macroF1 0.301 | Sharpe -0.23
+  Fold 4: acc 0.367 | macroF1 0.351 | Sharpe 0.69
+  FINAL TEST: acc 0.351 | macroF1 0.338 | Sharpe -0.02 | MaxDD -27.2%
+  live model saved (trained through 2026-10-15)
+
+=== Final test comparison — Infosys ===
+        model  accuracy  macro_f1  sharpe   cagr  max_drawdown
+Random Forest     0.313     0.301  -1.286 -0.243        -0.534
+      XGBoost     0.342     0.317  -0.635 -0.134        -0.377
+         LSTM     0.351     0.338  -0.020 -0.021        -0.272
+    Always UP     0.333     0.167  -0.211 -0.088        -0.482
+   Buy & Hold       NaN       NaN  -0.211 -0.088        -0.482
+
+Saved -> results\infy_metrics.csv
+===== DONE INFY =====
+===== TRAINING HDFCBANK =====
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x000001ED506A2020> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x000001ED50E53420> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+
+--- HDFCBANK / Random Forest ---
+  Fold 1: acc 0.355 | macroF1 0.335 | Sharpe -0.48
+  Fold 2: acc 0.359 | macroF1 0.355 | Sharpe 0.37
+  Fold 3: acc 0.351 | macroF1 0.347 | Sharpe 0.62
+  Fold 4: acc 0.502 | macroF1 0.360 | Sharpe 0.96
+  FINAL TEST: acc 0.365 | macroF1 0.309 | Sharpe -1.03 | MaxDD -38.7%
+  live model saved (trained through 2026-10-15)
+
+--- HDFCBANK / XGBoost ---
+  Fold 1: acc 0.347 | macroF1 0.325 | Sharpe -0.85
+  Fold 2: acc 0.395 | macroF1 0.395 | Sharpe 1.38
+  Fold 3: acc 0.359 | macroF1 0.350 | Sharpe 0.03
+  Fold 4: acc 0.506 | macroF1 0.301 | Sharpe -0.04
+  FINAL TEST: acc 0.370 | macroF1 0.300 | Sharpe -1.15 | MaxDD -38.2%
+  live model saved (trained through 2026-10-15)
+
+--- HDFCBANK / LSTM ---
+  Fold 1: acc 0.283 | macroF1 0.255 | Sharpe -0.48
+  Fold 2: acc 0.286 | macroF1 0.284 | Sharpe -0.62
+  Fold 3: acc 0.371 | macroF1 0.304 | Sharpe -0.19
+  Fold 4: acc 0.420 | macroF1 0.290 | Sharpe -0.42
+  FINAL TEST: acc 0.355 | macroF1 0.313 | Sharpe -0.20 | MaxDD -26.4%
+  live model saved (trained through 2026-10-15)
+
+=== Final test comparison — HDFC Bank ===
+         model  accuracy  macro_f1  sharpe   cagr  max_drawdown
+ Random Forest     0.365     0.309  -1.025 -0.152        -0.387
+       XGBoost     0.370     0.300  -1.148 -0.155        -0.382
+          LSTM     0.355     0.313  -0.204 -0.038        -0.264
+Always NEUTRAL     0.380     0.183   0.000  0.000         0.000
+    Buy & Hold       NaN       NaN  -0.093 -0.040        -0.310
+
+Saved -> results\hdfcbank_metrics.csv
+===== DONE HDFCBANK =====
+===== TRAINING ICICIBANK =====
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x00000222CE0BA020> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x00000222CE8634C0> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+
+--- ICICIBANK / Random Forest ---
+  Fold 1: acc 0.426 | macroF1 0.390 | Sharpe 0.30
+  Fold 2: acc 0.379 | macroF1 0.375 | Sharpe 0.49
+  Fold 3: acc 0.395 | macroF1 0.391 | Sharpe 0.90
+  Fold 4: acc 0.478 | macroF1 0.313 | Sharpe -0.19
+  FINAL TEST: acc 0.409 | macroF1 0.294 | Sharpe -0.43 | MaxDD -22.1%
+  live model saved (trained through 2026-10-15)
+
+--- ICICIBANK / XGBoost ---
+  Fold 1: acc 0.410 | macroF1 0.371 | Sharpe 0.30
+  Fold 2: acc 0.371 | macroF1 0.351 | Sharpe 0.39
+  Fold 3: acc 0.375 | macroF1 0.345 | Sharpe -0.19
+  Fold 4: acc 0.506 | macroF1 0.322 | Sharpe 1.30
+  FINAL TEST: acc 0.425 | macroF1 0.294 | Sharpe 0.28 | MaxDD -10.5%
+  live model saved (trained through 2026-10-15)
+
+--- ICICIBANK / LSTM ---
+  Fold 1: acc 0.458 | macroF1 0.334 | Sharpe 0.66
+  Fold 2: acc 0.359 | macroF1 0.336 | Sharpe 0.65
+  Fold 3: acc 0.383 | macroF1 0.378 | Sharpe 1.28
+  Fold 4: acc 0.441 | macroF1 0.328 | Sharpe 0.43
+  FINAL TEST: acc 0.420 | macroF1 0.312 | Sharpe 0.14 | MaxDD -12.0%
+  live model saved (trained through 2026-10-15)
+
+=== Final test comparison — ICICI Bank ===
+        model  accuracy  macro_f1  sharpe   cagr  max_drawdown
+Random Forest     0.409     0.294  -0.434 -0.053        -0.221
+      XGBoost     0.425     0.294   0.276  0.024        -0.105
+         LSTM     0.420     0.312   0.142  0.010        -0.120
+    Always UP     0.313     0.159   0.762  0.138        -0.184
+   Buy & Hold       NaN       NaN   0.762  0.138        -0.184
+
+Saved -> results\icicibank_metrics.csv
+===== DONE ICICIBANK =====
+===== TRAINING SBIN =====
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x0000024C3739E020> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x0000024C37B53420> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+
+--- SBIN / Random Forest ---
+  Fold 1: acc 0.375 | macroF1 0.334 | Sharpe -0.04
+  Fold 2: acc 0.315 | macroF1 0.293 | Sharpe -0.69
+  Fold 3: acc 0.323 | macroF1 0.302 | Sharpe -0.86
+  Fold 4: acc 0.351 | macroF1 0.218 | Sharpe -1.73
+  FINAL TEST: acc 0.371 | macroF1 0.322 | Sharpe -0.12 | MaxDD -32.5%
+  live model saved (trained through 2026-10-15)
+
+--- SBIN / XGBoost ---
+  Fold 1: acc 0.378 | macroF1 0.336 | Sharpe -0.77
+  Fold 2: acc 0.347 | macroF1 0.327 | Sharpe 0.32
+  Fold 3: acc 0.351 | macroF1 0.306 | Sharpe -0.92
+  Fold 4: acc 0.331 | macroF1 0.211 | Sharpe -1.60
+  FINAL TEST: acc 0.361 | macroF1 0.295 | Sharpe -0.64 | MaxDD -35.2%
+  live model saved (trained through 2026-10-15)
+
+--- SBIN / LSTM ---
+  Fold 1: acc 0.323 | macroF1 0.258 | Sharpe -0.72
+  Fold 2: acc 0.351 | macroF1 0.342 | Sharpe 1.92
+  Fold 3: acc 0.331 | macroF1 0.325 | Sharpe -0.75
+  Fold 4: acc 0.359 | macroF1 0.329 | Sharpe -0.02
+  FINAL TEST: acc 0.348 | macroF1 0.303 | Sharpe 0.16 | MaxDD -24.1%
+  live model saved (trained through 2026-10-15)
+
+=== Final test comparison — State Bank of India ===
+        model  accuracy  macro_f1  sharpe   cagr  max_drawdown
+Random Forest     0.371     0.322  -0.122 -0.034        -0.325
+      XGBoost     0.361     0.295  -0.638 -0.107        -0.352
+         LSTM     0.348     0.303   0.162  0.013        -0.241
+    Always UP     0.346     0.172   0.802  0.182        -0.239
+   Buy & Hold       NaN       NaN   0.802  0.182        -0.239
+
+Saved -> results\sbin_metrics.csv
+===== DONE SBIN =====
+===== TRAINING ITC =====
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x0000016ACB3A6020> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:5 out of the last 17 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x0000016ACBB53420> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+
+--- ITC / Random Forest ---
+  Fold 1: acc 0.363 | macroF1 0.339 | Sharpe 0.18
+  Fold 2: acc 0.359 | macroF1 0.358 | Sharpe -0.71
+  Fold 3: acc 0.343 | macroF1 0.342 | Sharpe -0.61
+  Fold 4: acc 0.367 | macroF1 0.285 | Sharpe 1.32
+  FINAL TEST: acc 0.387 | macroF1 0.330 | Sharpe -0.31 | MaxDD -30.0%
+  live model saved (trained through 2026-10-15)
+
+--- ITC / XGBoost ---
+  Fold 1: acc 0.402 | macroF1 0.372 | Sharpe 0.83
+  Fold 2: acc 0.375 | macroF1 0.374 | Sharpe -0.54
+  Fold 3: acc 0.403 | macroF1 0.395 | Sharpe 0.72
+  Fold 4: acc 0.351 | macroF1 0.245 | Sharpe 0.22
+  FINAL TEST: acc 0.401 | macroF1 0.326 | Sharpe 0.41 | MaxDD -16.8%
+  live model saved (trained through 2026-10-15)
+
+--- ITC / LSTM ---
+  Fold 1: acc 0.386 | macroF1 0.363 | Sharpe 0.66
+  Fold 2: acc 0.339 | macroF1 0.283 | Sharpe -0.86
+  Fold 3: acc 0.411 | macroF1 0.309 | Sharpe 1.85
+  Fold 4: acc 0.392 | macroF1 0.311 | Sharpe -0.70
+  FINAL TEST: acc 0.396 | macroF1 0.310 | Sharpe 0.44 | MaxDD -16.4%
+  live model saved (trained through 2026-10-15)
+
+=== Final test comparison — ITC Limited ===
+        model  accuracy  macro_f1  sharpe   cagr  max_drawdown
+Random Forest     0.387     0.330  -0.309 -0.053        -0.300
+      XGBoost     0.401     0.326   0.407  0.042        -0.168
+         LSTM     0.396     0.310   0.444  0.040        -0.164
+    Always UP     0.265     0.140  -0.688 -0.142        -0.450
+   Buy & Hold       NaN       NaN  -0.688 -0.142        -0.450
+
+Saved -> results\itc_metrics.csv
+===== DONE ITC =====

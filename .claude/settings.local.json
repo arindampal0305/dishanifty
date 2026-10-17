@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(venv/Scripts/python.exe --version)",
+      "Bash(venv/Scripts/python.exe -c \"import pandas, numpy, yfinance; print\\('pandas',pandas.__version__\\); print\\('numpy',numpy.__version__\\); print\\('yf',yfinance.__version__\\)\")",
+      "Bash(venv/Scripts/python.exe -c \"import pandas_ta as ta; print\\('pandas_ta OK', ta.version\\)\")",
+      "Bash(venv/Scripts/python.exe -c ' *)",
+      "Bash(touch src/__init__.py)",
+      "Bash(mkdir -p src/models data/predictions)",
+      "Bash(touch src/models/__init__.py)",
+      "Bash(venv/Scripts/python.exe -m src.data_loader --ticker TCS)",
+      "Bash(venv/Scripts/python.exe -m src.data_cleaner --ticker TCS)",
+      "Bash(venv/Scripts/python.exe -m src.data_loader --ticker ALL --force)",
+      "Bash(venv/Scripts/python.exe -m src.data_cleaner --ticker ALL)",
+      "Bash(venv/Scripts/python.exe -m src.target --ticker TCS --report)",
+      "Bash(venv/Scripts/python.exe -m src.target --ticker NIFTY50 --report)",
+      "Bash(venv/Scripts/python.exe -m src.target --ticker ALL)",
+      "Bash(venv/Scripts/python.exe -m src.evaluate --ticker TCS --model rf)",
+      "Bash(venv/Scripts/python.exe -m src.evaluate --ticker TCS --model xgb)",
+      "Bash(venv/Scripts/python.exe -m src.evaluate --ticker TCS --model all)",
+      "Bash(echo \"EXIT=$?\")",
+      "Read(//tmp/**)",
+      "Bash(venv/Scripts/python.exe /tmp/lstm_check.py)",
+      "Bash(./venv/Scripts/python.exe -c \"import sys; print\\(sys.version\\)\")",
+      "Bash(./venv/Scripts/python.exe -c ' *)",
+      "Bash(./venv/Scripts/python.exe -m src.predict --ticker TCS --model rf)",
+      "Bash(./venv/Scripts/python.exe -m src.predict --ticker NIFTY50 --model xgb)",
+      "Bash(./venv/Scripts/python.exe -m src.predict --ticker TCS --model lstm)",
+      "Bash(./venv/Scripts/python.exe -m py_compile dashboard/app.py dashboard/retro.py src/config.py src/predict.py src/run_pipeline.py)",
+      "Bash(taskkill //F //PID 24476)",
+      "Bash(netstat -ano)",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}
