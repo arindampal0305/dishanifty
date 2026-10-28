@@ -54,19 +54,59 @@ class Instrument:
 _INDEX_THRESHOLD = 0.0025
 _STOCK_THRESHOLD = 0.005
 
-INSTRUMENTS: dict[str, Instrument] = {
-    inst.key: inst
-    for inst in [
-        Instrument("NIFTY50", "^NSEI", "NIFTY 50", "index", _INDEX_THRESHOLD),
-        Instrument("TCS", "TCS.NS", "Tata Consultancy Services", "stock", _STOCK_THRESHOLD),
-        Instrument("RELIANCE", "RELIANCE.NS", "Reliance Industries", "stock", _STOCK_THRESHOLD),
-        Instrument("INFY", "INFY.NS", "Infosys", "stock", _STOCK_THRESHOLD),
-        Instrument("HDFCBANK", "HDFCBANK.NS", "HDFC Bank", "stock", _STOCK_THRESHOLD),
-        Instrument("ICICIBANK", "ICICIBANK.NS", "ICICI Bank", "stock", _STOCK_THRESHOLD),
-        Instrument("SBIN", "SBIN.NS", "State Bank of India", "stock", _STOCK_THRESHOLD),
-        Instrument("ITC", "ITC.NS", "ITC Limited", "stock", _STOCK_THRESHOLD),
-    ]
-}
+def _key_for(symbol: str) -> str:
+    """'SBIN.NS' -> 'SBIN', '^NSEBANK' -> 'NSEBANK'. Keys become filenames.
+
+    Punctuation collapses to an underscore, so 'M&M.NS' keys as M_M and
+    'BAJAJ-AUTO.NS' as BAJAJ_AUTO. The Yahoo symbol keeps its real spelling.
+    """
+    stem = symbol.upper().split(".")[0]
+    key = re.sub(r"[^A-Z0-9]+", "_", stem).strip("_")
+    if not key:
+        raise ValueError(f"Cannot derive an instrument key from '{symbol}'.")
+    return key
+
+
+# The eight hand-curated entries the project was built on. They keep their
+# hand-written display names even when the index list below also contains them.
+_CURATED: list[Instrument] = [
+    Instrument("NIFTY50", "^NSEI", "NIFTY 50", "index", _INDEX_THRESHOLD),
+    Instrument("TCS", "TCS.NS", "Tata Consultancy Services", "stock", _STOCK_THRESHOLD),
+    Instrument("RELIANCE", "RELIANCE.NS", "Reliance Industries", "stock", _STOCK_THRESHOLD),
+    Instrument("INFY", "INFY.NS", "Infosys", "stock", _STOCK_THRESHOLD),
+    Instrument("HDFCBANK", "HDFCBANK.NS", "HDFC Bank", "stock", _STOCK_THRESHOLD),
+    Instrument("ICICIBANK", "ICICIBANK.NS", "ICICI Bank", "stock", _STOCK_THRESHOLD),
+    Instrument("SBIN", "SBIN.NS", "State Bank of India", "stock", _STOCK_THRESHOLD),
+    Instrument("ITC", "ITC.NS", "ITC Limited", "stock", _STOCK_THRESHOLD),
+]
+
+# NIFTY 50 membership is re-constituted a few times a year, so the list lives in
+# a data file rather than in this module. src/fetch_universe.py refreshes it.
+NIFTY50_FILE = PROJECT_ROOT / "data" / "nifty50_constituents.json"
+
+
+def _load_universe() -> list[Instrument]:
+    """Index constituents from disk. A missing or malformed file is not fatal --
+    the app falls back to the curated eight rather than refusing to start."""
+    try:
+        rows = json.loads(NIFTY50_FILE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+
+    out: list[Instrument] = []
+    for row in rows:
+        symbol = str(row.get("symbol", "")).strip().upper()
+        name = str(row.get("name", "")).strip()
+        if not symbol or not name:
+            continue
+        out.append(Instrument(_key_for(symbol), f"{symbol}.NS", name,
+                              "stock", _STOCK_THRESHOLD))
+    return out
+
+
+INSTRUMENTS: dict[str, Instrument] = {inst.key: inst for inst in _CURATED}
+for _inst in _load_universe():
+    INSTRUMENTS.setdefault(_inst.key, _inst)   # curated names win
 
 MACRO_INSTRUMENTS: dict[str, Instrument] = {
     inst.key: inst
@@ -82,15 +122,6 @@ MARKET_INDEX_KEY = "NIFTY50"
 # a symbol added in one session is still there after a restart, and separate from
 # INSTRUMENTS so the eight curated defaults can never be edited away.
 _CUSTOM: dict[str, Instrument] = {}
-
-
-def _key_for(symbol: str) -> str:
-    """'SBIN.NS' -> 'SBIN', '^NSEBANK' -> 'NSEBANK'. Keys become filenames."""
-    stem = symbol.upper().split(".")[0]
-    key = re.sub(r"[^A-Z0-9]+", "_", stem).strip("_")
-    if not key:
-        raise ValueError(f"Cannot derive an instrument key from '{symbol}'.")
-    return key
 
 
 def load_custom_instruments() -> dict[str, Instrument]:

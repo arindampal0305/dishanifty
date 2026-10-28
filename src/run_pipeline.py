@@ -59,7 +59,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run the full DishaNifty pipeline.")
     parser.add_argument("--ticker", default="TCS",
                         help=f"Instrument key. One of: {', '.join(INSTRUMENTS)}")
-    parser.add_argument("--model", default="all", help="rf, xgb, lstm, or all")
+    parser.add_argument("--model", default="all",
+                        help="rf, xgb, lstm, all, or a comma list like rf,xgb")
     parser.add_argument("--skip-download", action="store_true",
                         help="Reuse the CSVs already in data/raw/")
     parser.add_argument("--force", action="store_true", help="Re-download raw data")
@@ -77,7 +78,14 @@ def main() -> None:
         return
 
     df = load_labeled(instrument.key)
-    model_keys = list(MODEL_REGISTRY) if args.model == "all" else [args.model]
+    if args.model == "all":
+        model_keys = list(MODEL_REGISTRY)
+    else:
+        model_keys = [k.strip() for k in args.model.split(",") if k.strip()]
+        unknown = [k for k in model_keys if k not in MODEL_REGISTRY]
+        if unknown:
+            parser.error(f"Unknown model(s): {', '.join(unknown)}. "
+                         f"Choose from {', '.join(MODEL_REGISTRY)} or 'all'.")
     metrics = pd.concat([run_model(instrument, key, df) for key in model_keys],
                         ignore_index=True)
 
@@ -87,7 +95,15 @@ def main() -> None:
         {"model": "Buy & Hold", "window": "Final Test", "n_rows": len(test),
          "n_trades": 1, **_buy_and_hold(df, test.index)},
     ])], ignore_index=True)
-    metrics.to_csv(config.RESULTS_DIR / f"{instrument.slug}_metrics.csv", index=False)
+    # Training a subset must not delete the rows of models it did not touch,
+    # or a 20-second rf+xgb run would wipe an LSTM score that took four minutes.
+    metrics_path = config.RESULTS_DIR / f"{instrument.slug}_metrics.csv"
+    if metrics_path.exists():
+        previous = pd.read_csv(metrics_path)
+        fresh = set(metrics["model"])
+        kept = previous[~previous["model"].isin(fresh)]
+        metrics = pd.concat([metrics, kept], ignore_index=True)
+    metrics.to_csv(metrics_path, index=False)
 
     print(f"\n=== Final test comparison — {instrument.name} ===")
     final = metrics[metrics["window"] == "Final Test"]

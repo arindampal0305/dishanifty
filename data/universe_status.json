@@ -1,0 +1,516 @@
+{
+  "generated": "2026-10-28 22:55",
+  "instruments": {
+    "NIFTY50": {
+      "key": "NIFTY50",
+      "symbol": "^NSEI",
+      "name": "NIFTY 50",
+      "rows": 2860,
+      "first": "2015-03-17",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "TCS": {
+      "key": "TCS",
+      "symbol": "TCS.NS",
+      "name": "Tata Consultancy Services",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "RELIANCE": {
+      "key": "RELIANCE",
+      "symbol": "RELIANCE.NS",
+      "name": "Reliance Industries",
+      "rows": 2862,
+      "first": "2015-03-16",
+      "last": "2026-10-15",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "INFY": {
+      "key": "INFY",
+      "symbol": "INFY.NS",
+      "name": "Infosys",
+      "rows": 2862,
+      "first": "2015-03-16",
+      "last": "2026-10-15",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "HDFCBANK": {
+      "key": "HDFCBANK",
+      "symbol": "HDFCBANK.NS",
+      "name": "HDFC Bank",
+      "rows": 2862,
+      "first": "2015-03-16",
+      "last": "2026-10-15",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "ICICIBANK": {
+      "key": "ICICIBANK",
+      "symbol": "ICICIBANK.NS",
+      "name": "ICICI Bank",
+      "rows": 2862,
+      "first": "2015-03-16",
+      "last": "2026-10-15",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "SBIN": {
+      "key": "SBIN",
+      "symbol": "SBIN.NS",
+      "name": "State Bank of India",
+      "rows": 2862,
+      "first": "2015-03-16",
+      "last": "2026-10-15",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "ITC": {
+      "key": "ITC",
+      "symbol": "ITC.NS",
+      "name": "ITC Limited",
+      "rows": 2862,
+      "first": "2015-03-16",
+      "last": "2026-10-15",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "ADANIENT": {
+      "key": "ADANIENT",
+      "symbol": "ADANIENT.NS",
+      "name": "Adani Enterprises",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "ADANIPORTS": {
+      "key": "ADANIPORTS",
+      "symbol": "ADANIPORTS.NS",
+      "name": "Adani Ports & SEZ",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "APOLLOHOSP": {
+      "key": "APOLLOHOSP",
+      "symbol": "APOLLOHOSP.NS",
+      "name": "Apollo Hospitals",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "ASIANPAINT": {
+      "key": "ASIANPAINT",
+      "symbol": "ASIANPAINT.NS",
+      "name": "Asian Paints",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "AXISBANK": {
+      "key": "AXISBANK",
+      "symbol": "AXISBANK.NS",
+      "name": "Axis Bank",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "BAJAJ_AUTO": {
+      "key": "BAJAJ_AUTO",
+      "symbol": "BAJAJ-AUTO.NS",
+      "name": "Bajaj Auto",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "BAJFINANCE": {
+      "key": "BAJFINANCE",
+      "symbol": "BAJFINANCE.NS",
+      "name": "Bajaj Finance",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "BAJAJFINSV": {
+      "key": "BAJAJFINSV",
+      "symbol": "BAJAJFINSV.NS",
+      "name": "Bajaj Finserv",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "BEL": {
+      "key": "BEL",
+      "symbol": "BEL.NS",
+      "name": "Bharat Electronics",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "BHARTIARTL": {
+      "key": "BHARTIARTL",
+      "symbol": "BHARTIARTL.NS",
+      "name": "Bharti Airtel",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "BSE": {
+      "key": "BSE",
+      "symbol": "BSE.NS",
+      "name": "BSE",
+      "rows": 2354,
+      "first": "2017-04-19",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "CIPLA": {
+      "key": "CIPLA",
+      "symbol": "CIPLA.NS",
+      "name": "Cipla",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "COALINDIA": {
+      "key": "COALINDIA",
+      "symbol": "COALINDIA.NS",
+      "name": "Coal India",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "DRREDDY": {
+      "key": "DRREDDY",
+      "symbol": "DRREDDY.NS",
+      "name": "Dr. Reddy's Laboratories",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "EICHERMOT": {
+      "key": "EICHERMOT",
+      "symbol": "EICHERMOT.NS",
+      "name": "Eicher Motors",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "ETERNAL": {
+      "key": "ETERNAL",
+      "symbol": "ETERNAL.NS",
+      "name": "Eternal",
+      "rows": 1252,
+      "first": "2021-10-04",
+      "last": "2026-10-27",
+      "status": "partial",
+      "note": "Listed Oct 2021, so the early folds have little or no training data. The final test still works."
+    },
+    "GRASIM": {
+      "key": "GRASIM",
+      "symbol": "GRASIM.NS",
+      "name": "Grasim Industries",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "HCLTECH": {
+      "key": "HCLTECH",
+      "symbol": "HCLTECH.NS",
+      "name": "HCLTech",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "HDFCLIFE": {
+      "key": "HDFCLIFE",
+      "symbol": "HDFCLIFE.NS",
+      "name": "HDFC Life",
+      "rows": 2159,
+      "first": "2018-01-29",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "HINDALCO": {
+      "key": "HINDALCO",
+      "symbol": "HINDALCO.NS",
+      "name": "Hindalco Industries",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "HINDUNILVR": {
+      "key": "HINDUNILVR",
+      "symbol": "HINDUNILVR.NS",
+      "name": "Hindustan Unilever",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "INDIGO": {
+      "key": "INDIGO",
+      "symbol": "INDIGO.NS",
+      "name": "IndiGo",
+      "rows": 2657,
+      "first": "2016-01-22",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "JIOFIN": {
+      "key": "JIOFIN",
+      "symbol": "JIOFIN.NS",
+      "name": "Jio Financial Services",
+      "rows": 737,
+      "first": "2023-11-01",
+      "last": "2026-10-27",
+      "status": "partial",
+      "note": "Listed Nov 2023, so the early folds have little or no training data. The final test still works."
+    },
+    "JSWSTEEL": {
+      "key": "JSWSTEEL",
+      "symbol": "JSWSTEEL.NS",
+      "name": "JSW Steel",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "KOTAKBANK": {
+      "key": "KOTAKBANK",
+      "symbol": "KOTAKBANK.NS",
+      "name": "Kotak Mahindra Bank",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "LT": {
+      "key": "LT",
+      "symbol": "LT.NS",
+      "name": "Larsen & Toubro",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "M_M": {
+      "key": "M_M",
+      "symbol": "M&M.NS",
+      "name": "Mahindra & Mahindra",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "MARUTI": {
+      "key": "MARUTI",
+      "symbol": "MARUTI.NS",
+      "name": "Maruti Suzuki",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "MAXHEALTH": {
+      "key": "MAXHEALTH",
+      "symbol": "MAXHEALTH.NS",
+      "name": "Max Healthcare",
+      "rows": 1481,
+      "first": "2020-10-30",
+      "last": "2026-10-27",
+      "status": "partial",
+      "note": "Listed Oct 2020, so the early folds have little or no training data. The final test still works."
+    },
+    "NESTLEIND": {
+      "key": "NESTLEIND",
+      "symbol": "NESTLEIND.NS",
+      "name": "Nestl\u00e9 India",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "NTPC": {
+      "key": "NTPC",
+      "symbol": "NTPC.NS",
+      "name": "NTPC",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "ONGC": {
+      "key": "ONGC",
+      "symbol": "ONGC.NS",
+      "name": "Oil and Natural Gas Corporation",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "POWERGRID": {
+      "key": "POWERGRID",
+      "symbol": "POWERGRID.NS",
+      "name": "Power Grid",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "SBILIFE": {
+      "key": "SBILIFE",
+      "symbol": "SBILIFE.NS",
+      "name": "SBI Life Insurance Company",
+      "rows": 2191,
+      "first": "2017-12-12",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "SHRIRAMFIN": {
+      "key": "SHRIRAMFIN",
+      "symbol": "SHRIRAMFIN.NS",
+      "name": "Shriram Finance",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "SUNPHARMA": {
+      "key": "SUNPHARMA",
+      "symbol": "SUNPHARMA.NS",
+      "name": "Sun Pharma",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "TATACONSUM": {
+      "key": "TATACONSUM",
+      "symbol": "TATACONSUM.NS",
+      "name": "Tata Consumer Products",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "TMPV": {
+      "key": "TMPV",
+      "symbol": "TMPV.NS",
+      "name": "Tata Motors Passenger Vehicles",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "TATASTEEL": {
+      "key": "TATASTEEL",
+      "symbol": "TATASTEEL.NS",
+      "name": "Tata Steel",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "TECHM": {
+      "key": "TECHM",
+      "symbol": "TECHM.NS",
+      "name": "Tech Mahindra",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "TITAN": {
+      "key": "TITAN",
+      "symbol": "TITAN.NS",
+      "name": "Titan Company",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "TRENT": {
+      "key": "TRENT",
+      "symbol": "TRENT.NS",
+      "name": "Trent",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    },
+    "ULTRACEMCO": {
+      "key": "ULTRACEMCO",
+      "symbol": "ULTRACEMCO.NS",
+      "name": "UltraTech Cement",
+      "rows": 2869,
+      "first": "2015-03-16",
+      "last": "2026-10-27",
+      "status": "full",
+      "note": "All four walk-forward folds are meaningful."
+    }
+  },
+  "failed": {}
+}

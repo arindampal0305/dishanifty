@@ -12,6 +12,7 @@ symbol that has never been fitted shows a TRAIN button rather than an error.
 
 from __future__ import annotations
 
+import json
 import sys
 from datetime import date
 from pathlib import Path
@@ -24,7 +25,7 @@ import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from dashboard import retro
+from dashboard import retro, screener, timeframes
 from dashboard.retro import (ACTION_COLORS, DIRECTION_COLORS, DOWN_C, FLAT_C, GREEN,
                              MODEL_COLORS, MUTED, UP_C)
 from src import config
@@ -38,6 +39,9 @@ st.set_page_config(page_title="DISHA // NSE terminal", page_icon="▲", layout="
 retro.inject_css()
 
 LOGS_DIR = config.PROJECT_ROOT / "logs"
+STATUS_FILE = config.PROJECT_ROOT / "data" / "universe_status.json"
+# Random Forest and XGBoost together fit in ~20s; the LSTM alone takes ~3.5min.
+QUICK_MODELS = ["rf", "xgb"]
 MARKER_SYMBOLS = {"UP": "triangle-up", "DOWN": "triangle-down", "NEUTRAL": "circle"}
 CHANCE = 1 / 3
 
@@ -120,12 +124,40 @@ def run_job(title: str, argv: list[str], slug: str, stages: int = 0) -> None:
     st.rerun()
 
 
-def train(inst, download: bool = True) -> None:
-    args = ["--ticker", inst.key, "--model", "all"]
-    args += ["--force"] if download else ["--skip-download"]
-    run_job(f"training all three models on {inst.name}",
+@st.cache_data(show_spinner=False)
+def _history(mtime: float) -> dict:
+    try:
+        return json.loads(STATUS_FILE.read_text(encoding="utf-8"))["instruments"]
+    except (OSError, ValueError, KeyError):
+        return {}
+
+
+def history_status() -> dict:
+    """How much price history each instrument has, from the last universe prep.
+
+    Advisory only — an absent file just means no warnings, never an error.
+    """
+    try:
+        return _history(STATUS_FILE.stat().st_mtime)
+    except OSError:
+        return {}
+
+
+def train(inst, models: list[str] | None = None) -> None:
+    """Fit some or all models for one instrument.
+
+    The download is skipped whenever the labelled file is already on disk, which
+    is exactly what src.prepare_universe guarantees. Without that check every
+    train would re-fetch eleven years of prices it already has.
+    """
+    models = models or list(MODEL_LABELS)
+    spec = "all" if len(models) == len(MODEL_LABELS) else ",".join(models)
+    args = ["--ticker", inst.key, "--model", spec]
+    args += ["--skip-download"] if inst.labeled_path().exists() else ["--force"]
+    names = " + ".join(MODEL_LABELS[k] for k in models)
+    run_job(f"training {names} on {inst.name}",
             retro.python_cmd("src.run_pipeline", *args), f"{inst.slug}_train",
-            stages=retro.train_stages(list(MODEL_LABELS)))
+            stages=retro.train_stages(models))
 
 
 def refresh(inst) -> None:
@@ -133,6 +165,149 @@ def refresh(inst) -> None:
             retro.python_cmd("src.run_pipeline", "--ticker", inst.key,
                              "--prepare-only", "--force"),
             f"{inst.slug}_refresh")
+
+
+def render_screener(ticker: str) -> None:
+    """The screener view: indicator arithmetic over every instrument.
+
+    Rendered instead of the terminal, not inside it, and reached from the
+    nav button beside the logo. It deliberately runs before the
+    not-trained guard below -- these screens read indicator files, so they
+    work for all 51 companies whether or not a model has been fitted.
+    """
+    st.caption(
+        "Screens across every instrument that has data, trained or not - these "
+        "read the indicator files directly, so all of them are available here "
+        "even when only a handful have models fitted. Nothing on this tab is "
+        "model output."
+    )
+
+    panel = screener.load_panel(screener.data_signature())
+    names = {k: v.name for k, v in config.all_instruments().items()}
+
+    # ---- RSI screen -------------------------------------------------------
+    st.subheader("RSI screen")
+    r1, r2 = st.columns([3, 1])
+    level = r1.slider("RSI level", 5, 95, 70, 1, label_visibility="collapsed")
+    side = r2.radio("side", ["above", "below"], horizontal=True,
+                    label_visibility="collapsed")
+    above = side == "above"
+
+    hits = screener.rsi_screen(panel, level, above)
+    zone, zone_note = screener.rsi_zone(level)
+
+    if hits.empty:
+        retro.crt(f"No instrument is currently {side} RSI {level}.", tone="dim")
+    else:
+        shown = hits.head(16)
+        more = len(hits) - len(shown)
+        retro.crt(
+            f"RSI {side.upper()} {level}   -   {len(hits)} of {len(panel)} instruments\n\n"
+            + retro.labelled_bars(
+                [(row.Company[:26], row.RSI / 100) for row in shown.itertuples()],
+                width=34, marker=level / 100)
+            + (f"\n\n...and {more} more in the table below." if more else ""),
+            tone="amber" if level >= 70 else "cyan" if level <= 30 else "",
+        )
+
+        st.dataframe(
+            hits[["Company", "RSI", "Close", "1d", "Zone"]]
+            .rename(columns={"1d": "1-day"})
+            .style.format({"RSI": "{:.1f}", "Close": "Rs {:,.2f}",
+                           "1-day": "{:+.2%}"}),
+            width="stretch", hide_index=True, height=260,
+        )
+
+    wrapped = [zone_note[i:i + 68] for i in range(0, len(zone_note), 68)]
+    retro.crt(retro.box([f"level {level:>3}  reads as {zone}", "", *wrapped],
+                        title="WHAT THAT LEVEL MEANS", width=76),
+              tone="dim", bare=True)
+
+    st.divider()
+
+    # ---- Bollinger breakouts ----------------------------------------------
+    st.subheader("Bollinger breakout")
+    b1, b2, b3 = st.columns(3)
+    period = b1.number_input("period", 5, 100, 20, 1,
+                             help="Sessions in the moving average")
+    n_std = b2.number_input("sigma", 0.5, 4.0, 2.0, 0.1,
+                            help="Band width in standard deviations")
+    window = b3.number_input("look back", 1, 60, 10, 1,
+                             help="How many recent sessions to search for a break")
+
+    breaks = screener.breakout_screen(panel, int(period), float(n_std), int(window))
+    if breaks.empty:
+        retro.crt(f"Nothing pierced a {n_std:g}-sigma band over the last "
+                  f"{window} sessions.", tone="dim")
+    else:
+        table = breaks.copy()
+        table["Broke"] = table["Broke"].dt.strftime("%d %b %Y")
+        st.dataframe(
+            table[["Company", "Broke", "Side", "Close", "Band", "Outside", "Breaks"]]
+            .style.format({"Close": "Rs {:,.2f}", "Band": "Rs {:,.2f}",
+                           "Outside": "{:.2%}"})
+            .map(lambda v: f"color: {UP_C}" if v == "ABOVE" else f"color: {DOWN_C}",
+                 subset=["Side"]),
+            width="stretch", hide_index=True, height=260,
+        )
+        st.caption(
+            f"{len(breaks)} of {len(panel)} instruments closed outside the band at "
+            f"least once in the last {window} sessions. `Outside` is how far past "
+            "the band that close sat, and `Breaks` counts the sessions it happened. "
+            "Widening sigma shrinks this list sharply."
+        )
+
+    # ---- the candles themselves -------------------------------------------
+    chartable = list(panel)
+    pick = st.selectbox(
+        "chart", chartable,
+        index=chartable.index(ticker) if ticker in chartable else 0,
+        format_func=lambda k: names.get(k, k),
+    )
+    bars = panel[pick].tail(180)
+    bands = screener.bollinger(bars["Close"], int(period), float(n_std))
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=bars.index, y=bands["upper"], name="upper",
+                             line=dict(width=1, color=MUTED, dash="dot")))
+    fig.add_trace(go.Scatter(x=bars.index, y=bands["lower"], name="lower",
+                             fill="tonexty", fillcolor="rgba(95,143,108,.10)",
+                             line=dict(width=1, color=MUTED, dash="dot")))
+    fig.add_trace(go.Scatter(x=bars.index, y=bands["mid"], name=f"SMA {int(period)}",
+                             line=dict(width=1.1, color=FLAT_C)))
+    fig.add_trace(go.Candlestick(
+        x=bars.index, open=bars["Open"], high=bars["High"], low=bars["Low"],
+        close=bars["Close"], name="Price",
+        increasing=dict(line_color=UP_C, fillcolor=UP_C),
+        decreasing=dict(line_color=DOWN_C, fillcolor=DOWN_C)))
+
+    # Ring the closes that finished outside the band. Without a marker they are
+    # hard to pick out of 180 candles, and they are the whole point here.
+    for mask, colour, label in [(bars["Close"] > bands["upper"], UP_C, "broke above"),
+                                (bars["Close"] < bands["lower"], DOWN_C, "broke below")]:
+        out = bars[mask.fillna(False)]
+        if out.empty:
+            continue
+        fig.add_trace(go.Scatter(
+            x=out.index, y=out["Close"], mode="markers", name=label,
+            marker=dict(size=13, color="rgba(0,0,0,0)",
+                        line=dict(width=1.6, color=colour)),
+            hovertemplate="%{x|%d %b %Y}<br>Rs %{y:,.2f}<extra>" + label + "</extra>"))
+
+    fig.update_layout(xaxis_rangeslider_visible=False)
+    chart(fig, height=420)
+    st.caption(
+        f"{names.get(pick, pick)} - {int(period)}-session band at {n_std:g} sigma, "
+        "last 180 sessions. Circled closes finished outside it. A close outside "
+        "the band says how unusual that move was against recent volatility; it "
+        "says nothing about the next one."
+    )
+
+    st.divider()
+    retro.crt("\n".join(
+        f"{label.ljust(12)}{('>= ' + str(int(floor))) if floor else 'below 30':<10}{note[:50]}"
+        for floor, label, note in screener.RSI_ZONES), tone="dim")
+    st.caption(screener.NOTE)
 
 
 # --------------------------------------------------------------------------
@@ -143,19 +318,42 @@ with st.sidebar:
     retro.crt(retro.box(["D I S H A", "nse direction terminal"], title="v1.0"), bare=True)
 
     instruments = config.all_instruments()
+    history = history_status()
+    # Computed once: the list is 51 entries and both the label and the sort
+    # order need it, which would otherwise be 300-odd stat calls per rerun.
+    fitted = {k: len(available_models(v)) for k, v in instruments.items()}
+
+    def _too_short(key: str) -> bool:
+        return history.get(key, {}).get("status") == "insufficient"
 
     def _option_label(key: str) -> str:
-        inst = instruments[key]
-        n = len(available_models(inst))
-        mark = "###"[:n].ljust(3, "-")
-        return f"[{mark}] {inst.name}"
+        n = fitted[key]
+        mark = "###"[:n].ljust(3, "-") if n else (" ! " if _too_short(key) else "---")
+        return f"[{mark}] {instruments[key].name}"
 
-    default = "TCS" if "TCS" in instruments else next(iter(instruments))
-    ticker = st.selectbox("> instrument", list(instruments),
-                          index=list(instruments).index(default),
+    def _rank(key: str):
+        """Index first, then most-trained, then short-history last, then A-Z."""
+        return (key != config.MARKET_INDEX_KEY, -fitted[key],
+                _too_short(key), instruments[key].name.lower())
+
+    ordered = sorted(instruments, key=_rank)
+    default = "TCS" if "TCS" in instruments else ordered[0]
+
+    # The selection is carried in our own state key, not the widget's, and fed
+    # back through index=. Training changes both the order and the badges, and a
+    # key-managed selectbox keeps showing the stale label it was first given --
+    # a company would still read [---] right after being fitted. Re-supplying
+    # index= every run keeps the choice *and* refreshes the labels.
+    chosen = st.session_state.get("instrument_value", default)
+    if chosen not in instruments:
+        chosen = default
+    ticker = st.selectbox("> instrument", ordered, index=ordered.index(chosen),
                           format_func=_option_label)
+    st.session_state["instrument_value"] = ticker
     instrument = config.get_instrument(ticker)
-    st.caption("`[###]` = three models trained, `[---]` = none yet.")
+    st.caption("`[###]` = three models trained, `[---]` = none yet, "
+               "`[ ! ]` = listed too recently to train honestly. "
+               "Type to search.")
 
     trained = available_models(instrument)
     missing = [k for k in MODEL_LABELS if k not in trained]
@@ -187,6 +385,7 @@ with st.sidebar:
             st.error(str(exc))
         else:
             st.session_state["pending_train"] = added.key
+            st.session_state["instrument_value"] = added.key
 
     st.divider()
 
@@ -221,12 +420,24 @@ with st.sidebar:
 # Masthead
 # --------------------------------------------------------------------------
 
-st.markdown(f'<div class="logo">{retro.LOGO}</div>', unsafe_allow_html=True)
-st.markdown(
-    "<div class='tag'>next-day direction &middot; nse &middot; "
-    "random forest / xgboost / lstm</div>",
-    unsafe_allow_html=True,
-)
+in_screener = st.session_state.get("view") == "screener"
+
+logo_col, nav_col = st.columns([4, 1], vertical_alignment="center")
+with logo_col:
+    st.markdown(f'<div class="logo">{retro.LOGO}</div>', unsafe_allow_html=True)
+    st.markdown(
+        "<div class='tag'>next-day direction &middot; nse &middot; "
+        "random forest / xgboost / lstm</div>",
+        unsafe_allow_html=True,
+    )
+with nav_col:
+    # Keyed container so the CSS can reach the button; Streamlit gives no hook
+    # for styling one button out of many.
+    with st.container(key="nav_back" if in_screener else "nav_screener"):
+        if st.button("< TERMINAL" if in_screener else "SCREENER",
+                     width="stretch"):
+            st.session_state["view"] = "terminal" if in_screener else "screener"
+            st.rerun()
 st.write("")
 
 if err := st.session_state.pop("job_error", None):
@@ -239,25 +450,49 @@ if pending := st.session_state.pop("pending_train", None):
 
 
 # --------------------------------------------------------------------------
+# Screener view — a whole separate screen, not a tab inside the terminal
+# --------------------------------------------------------------------------
+
+if in_screener:
+    render_screener(ticker)
+    retro.footer(DISCLAIMER)
+    st.stop()
+
+
+# --------------------------------------------------------------------------
 # Not ready yet — offer to build it instead of dead-ending
 # --------------------------------------------------------------------------
 
 if not trained:
     has_data = instrument.labeled_path().exists()
+    hist = history_status().get(instrument.key, {})
+    span = (f"{hist['first']} -> {hist['last']}  ({hist['rows']:,} sessions)"
+            if hist.get("rows") else "run src.prepare_universe to fetch it")
+
     retro.crt(retro.box([
         f"instrument   {instrument.name} ({instrument.symbol})",
-        f"price data   {'present' if has_data else 'not downloaded'}",
+        f"price data   {'ready' if has_data else 'not downloaded'}",
+        f"history      {span}",
         "models       none on disk",
         "",
         "Nothing has been fitted for this symbol yet, so there is no call to",
         "show. Training runs the full walk-forward study: four expanding folds,",
         "one sealed final test, then a live refit on all history.",
         "",
-        "Takes roughly three to six minutes. Disha will keep you company.",
+        "QUICK fits Random Forest and XGBoost, about twenty seconds.",
+        "FULL adds the LSTM, which on its own takes three to four minutes.",
+        "Disha will keep you company either way.",
     ], title="NOT TRAINED", width=76), tone="amber")
 
-    left, right = st.columns([1, 3])
-    if left.button("TRAIN NOW", width="stretch", type="primary"):
+    if hist.get("status") == "insufficient":
+        st.warning(hist["note"])
+    elif hist.get("status") == "partial":
+        st.info(hist["note"])
+
+    left, mid, right = st.columns([1, 1, 2])
+    if left.button("QUICK TRAIN", width="stretch", type="primary"):
+        train(instrument, QUICK_MODELS)
+    if mid.button("FULL TRAIN", width="stretch"):
         train(instrument)
     st.stop()
 
@@ -277,7 +512,11 @@ retro.crt(
 )
 
 h1, h2, h3, h4 = st.columns(4)
-h1.metric("Last close", f"Rs {latest['Close']:,.2f}", f"{change:+.2%}")
+# The key drives the CSS that paints the value red on a down session; Streamlit
+# colours only the delta badge by itself.
+close_tone = "up" if change > 0 else "down" if change < 0 else "flat"
+with h1.container(key=f"last-close-{close_tone}"):
+    st.metric("Last close", f"Rs {latest['Close']:,.2f}", f"{change:+.2%}")
 h2.metric("Bars loaded", f"{len(features):,}")
 h3.metric("RSI (14)", f"{latest['RSI_14']:.0f}")
 h4.metric("Volatility", f"{latest['Volatility_10'] * (252 ** 0.5):.0%}",
@@ -359,28 +598,50 @@ with tab_today:
                   help="0 = lower band, 1 = upper band")
 
     st.subheader("Price")
-    window = st.radio("Window", [60, 120, 250, 500], index=1, horizontal=True,
-                      format_func=lambda n: f"{n}d", label_visibility="collapsed")
-    recent = features.tail(window)
+    # Single-select, so clicking the active button deselects it and returns None.
+    tf_key = st.segmented_control(
+        "Timeframe", list(timeframes.TIMEFRAMES), default=timeframes.DEFAULT,
+        label_visibility="collapsed", key="timeframe",
+    ) or timeframes.DEFAULT
+    tf = timeframes.TIMEFRAMES[tf_key]
 
-    price = go.Figure()
-    price.add_trace(go.Candlestick(
-        x=recent.index, open=recent["Open"], high=recent["High"],
-        low=recent["Low"], close=recent["Close"], name="Price",
-        increasing=dict(line_color=UP_C, fillcolor=UP_C),
-        decreasing=dict(line_color=DOWN_C, fillcolor=DOWN_C)))
-    price.add_trace(go.Scatter(x=recent.index, y=recent["SMA_20"], name="SMA 20",
-                               line=dict(width=1.2, color=FLAT_C)))
-    price.add_trace(go.Scatter(x=recent.index, y=recent["EMA_50"], name="EMA 50",
-                               line=dict(width=1.2, color=MUTED, dash="dot")))
-    price.update_layout(xaxis_rangeslider_visible=False)
-    chart(price, height=380)
+    if tf.intraday:
+        with st.spinner(f"pulling {tf_key} bars from Yahoo"):
+            recent, tf_error = timeframes.load(instrument.symbol, features, tf_key)
+    else:
+        recent, tf_error = timeframes.load(instrument.symbol, features, tf_key)
 
-    rsi = px.line(recent, y="RSI_14", color_discrete_sequence=[GREEN])
-    rsi.add_hline(y=70, line_dash="dot", line_color=DOWN_C)
-    rsi.add_hline(y=30, line_dash="dot", line_color=UP_C)
-    rsi.update_layout(yaxis_title="RSI (14)", xaxis_title=None, yaxis_range=[0, 100])
-    chart(rsi, height=190, legend=False)
+    if tf_error:
+        st.warning(tf_error)
+    else:
+        price = go.Figure()
+        price.add_trace(go.Candlestick(
+            x=recent.index, open=recent["Open"], high=recent["High"],
+            low=recent["Low"], close=recent["Close"], name="Price",
+            increasing=dict(line_color=UP_C, fillcolor=UP_C),
+            decreasing=dict(line_color=DOWN_C, fillcolor=DOWN_C)))
+        price.add_trace(go.Scatter(x=recent.index, y=recent["SMA_20"], name="SMA 20",
+                                   line=dict(width=1.2, color=FLAT_C)))
+        price.add_trace(go.Scatter(x=recent.index, y=recent["EMA_50"], name="EMA 50",
+                                   line=dict(width=1.2, color=MUTED, dash="dot")))
+        price.update_layout(xaxis_rangeslider_visible=False)
+        price.update_xaxes(rangebreaks=tf.rangebreaks)
+        chart(price, height=380)
+
+        note = tf.caption
+        if tf.intraday:
+            note += ("  The models are fitted on daily bars, so no prediction "
+                     "attaches to this resolution — it is price only.")
+        st.caption(note)
+
+        if recent["RSI_14"].notna().any():
+            rsi = px.line(recent, y="RSI_14", color_discrete_sequence=[GREEN])
+            rsi.add_hline(y=70, line_dash="dot", line_color=DOWN_C)
+            rsi.add_hline(y=30, line_dash="dot", line_color=UP_C)
+            rsi.update_layout(yaxis_title="RSI (14)", xaxis_title=None,
+                              yaxis_range=[0, 100])
+            rsi.update_xaxes(rangebreaks=tf.rangebreaks)
+            chart(rsi, height=190, legend=False)
 
 # --------------------------------------------------------------------------
 # Track record — predicted vs actual, day by day

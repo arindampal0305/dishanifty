@@ -8,3 +8,4 @@ data/processed/*.csv
 saved_models/
 .env
 columns_check.txt
+logs/*.log

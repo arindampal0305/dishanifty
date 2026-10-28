@@ -161,6 +161,17 @@ div.crt.dim   {{color: var(--muted); text-shadow: none;}}
 }}
 [data-testid="stMetricDelta"] {{font-family: {FONT_ART} !important; font-size: 12px !important;}}
 
+/* Last close carries the session's direction in the number itself, not just in
+   the delta badge, which is all Streamlit colours on its own. Scoped by the
+   container key app.py sets. Up days need no rule -- green is already the
+   default above. The glow is overridden too, or a red number keeps a green halo. */
+.st-key-last-close-down [data-testid="stMetricValue"] {{
+  color: var(--red) !important; text-shadow: 0 0 8px rgba(255,85,85,.4);
+}}
+.st-key-last-close-flat [data-testid="stMetricValue"] {{
+  color: var(--amber) !important; text-shadow: 0 0 8px rgba(255,182,39,.4);
+}}
+
 /* --- sidebar -------------------------------------------------------------- */
 [data-testid="stSidebar"] {{
   background: rgba(3,3,3,.72); border-right: 1px solid var(--grid);
@@ -200,6 +211,33 @@ div.crt.dim   {{color: var(--muted); text-shadow: none;}}
 .stFormSubmitButton > button:hover {{
   background: var(--green); color: #04140a; border-color: var(--green);
   box-shadow: 0 0 14px rgba(57,255,106,.5);
+}}
+
+/* --- top nav button -------------------------------------------------------
+   Sits beside the logo and swaps the whole view, so it must not read as just
+   another control. Amber against the green chrome, with a steady glow. */
+.st-key-nav_screener .stButton > button {{
+  width: 100%; padding: 11px 6px;
+  background: var(--panel); color: var(--amber);
+  border: 1px solid var(--amber);
+  font-size: 12px; letter-spacing: .12em; white-space: nowrap;
+  box-shadow: 0 0 14px rgba(255,182,39,.45);
+}}
+.st-key-nav_screener .stButton > button:hover {{
+  background: var(--amber); color: #140d02; border-color: var(--amber);
+  box-shadow: 0 0 24px rgba(255,182,39,.8);
+}}
+
+.st-key-nav_back .stButton > button {{
+  width: 100%; padding: 11px 6px;
+  background: var(--panel); color: var(--green);
+  border: 1px solid var(--green);
+  font-size: 12px; letter-spacing: .12em; white-space: nowrap;
+  box-shadow: 0 0 10px rgba(57,255,106,.30);
+}}
+.st-key-nav_back .stButton > button:hover {{
+  background: var(--green); color: #04140a;
+  box-shadow: 0 0 24px rgba(57,255,106,.8);
 }}
 
 /* --- radio pills ---------------------------------------------------------- */

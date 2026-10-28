@@ -1,0 +1,4 @@
+,pred_DOWN,pred_NEUTRAL,pred_UP
+true_DOWN,68,130,30
+true_NEUTRAL,67,135,36
+true_UP,72,123,36

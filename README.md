@@ -6,7 +6,8 @@ Predicts the next trading day's direction (**UP / DOWN / NEUTRAL**) for the NIFT
 Two companion documents go deeper than this README:
 [DATA_FLOW.md](DATA_FLOW.md) traces every file and function from download to on-screen call,
 and [APPLICATION_GUIDE.md](APPLICATION_GUIDE.md) explains the app and each feature in
-non-technical language.
+non-technical language. The full project report, as submitted, is in
+[report/DishaNifty_Project_Report.docx](report/DishaNifty_Project_Report.docx).
 
 ## Research Question
 Does increasing model complexity (Random Forest → XGBoost → LSTM) improve predictive accuracy
@@ -37,13 +38,116 @@ classes land near 31/36/33. Both values come from the 0.1 / 0.25 / 0.5% grid, an
 threshold is frozen before the test set is touched.
 
 ## Setup
+
+### Prerequisites
+
+- **Python 3.12** (3.12.10 was used throughout development)
+- Roughly **500 MB** of free disk space once data and models are built
+- An internet connection for the first data download
+
+### 1. Clone and create the environment
+
 ```bash
-git clone https://github.com/arindampal0305/DishaNifty.git
-cd DishaNifty
+git clone -b final_disha https://github.com/arindampal0305/dishanifty.git
+cd dishanifty
 python -m venv venv
-venv\Scripts\activate
+```
+
+Activate it:
+
+```bash
+venv\Scripts\activate          # Windows
+source venv/bin/activate        # macOS or Linux
+```
+
+Then install the dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
+
+### 2. Fetch the market data
+
+**A fresh clone has no price data and no trained models.** Both are deliberately excluded
+from version control (see `.gitignore`): they run to several hundred megabytes, they are
+fully reproducible from the code, and committing regenerated copies would bloat the history
+on every run. The first command you run after installing therefore has to build them.
+
+```bash
+python -m src.prepare_universe
+```
+
+This downloads, cleans and builds features and labels for the NIFTY 50 index and all fifty
+constituent companies, plus the India VIX and USD/INR macro series. It takes a few minutes,
+is resumable, and a failure on one symbol does not abort the rest. On completion it writes
+`data/universe_status.json`, recording how much history each instrument actually has.
+
+To prepare only a few instruments instead of all fifty one:
+
+```bash
+python -m src.prepare_universe --only NIFTY50 TCS SBIN
+```
+
+To re-download everything from scratch, add `--force`.
+
+### 3. Train at least one instrument
+
+Preparing data does not train anything. Until a model exists for an instrument, the
+dashboard will show a **NOT TRAINED** panel for it rather than a prediction.
+
+```bash
+python -m src.run_pipeline --ticker NIFTY50 --model rf,xgb   # about 20 seconds
+python -m src.run_pipeline --ticker NIFTY50 --model all      # about 4 minutes, adds the LSTM
+```
+
+The LSTM accounts for roughly 93% of training time on its own, which is why the two tree
+models are offered as a separate fast path. You can equally do this from the interface:
+select any instrument and press **QUICK TRAIN** (Random Forest and XGBoost) or **FULL
+TRAIN** (all three).
+
+### 4. Launch the dashboard
+
+```bash
+streamlit run dashboard/app.py
+```
+
+Then open <http://localhost:8501> if it does not open by itself.
+
+### Pulling updates later
+
+```bash
+git pull
+pip install -r requirements.txt       # only if requirements.txt changed
+```
+
+Your local data and models are untouched by a pull, because they are not tracked. To bring
+prices up to the latest session, either press **REFRESH MARKET DATA** in the sidebar or run:
+
+```bash
+python -m src.prepare_universe --force
+```
+
+### Refreshing the NIFTY 50 constituent list (optional)
+
+Index membership is reviewed a few times a year, so the constituent list lives in a data
+file rather than in source. To refresh it:
+
+```bash
+python -m src.fetch_universe
+```
+
+This rewrites `data/nifty50_constituents.json`. Nothing else in the application touches the
+network at import time, so a blocked connection can never prevent the app from starting.
+
+### Troubleshooting
+
+| Symptom | Cause and fix |
+|---|---|
+| Every instrument shows `[---]` and NOT TRAINED | Normal on a fresh clone. Run step 3, or press QUICK TRAIN. |
+| `price data: not downloaded` | Step 2 has not been run for that instrument. |
+| An instrument is flagged with `[ ! ]` | It listed after 2015 and lacks the history the early folds need. Expected for Jio Financial, Eternal and Max Healthcare. |
+| Intraday chart is empty | Yahoo keeps only 7 days of 1-minute, 60 days of 5-minute and 2 years of hourly bars, and serves nothing outside market hours for some symbols. |
+| Edits to `dashboard/retro.py` have no effect | Streamlit caches imported modules. Restart the server rather than reloading the browser. |
 
 ## Usage
 
@@ -74,15 +178,22 @@ Dashboard:
 streamlit run dashboard/app.py
 ```
 
-Three tabs:
+Four tabs, plus a screener reached from the glowing button beside the logo:
 
 - **Today** — the BUY/SELL/HOLD call for the next session, class probabilities against the
-  45% action threshold, indicator context, candlesticks and RSI.
+  45% action threshold, indicator context, and a price chart with eleven timeframe presets
+  from 1-minute through to 5-year bars.
 - **Track record** — every past call plotted on the price line, green where the market agreed
-  and red where it did not, plus rolling accuracy for all three models against the 33.3%
-  chance line. These come from the final-test model, so they are genuinely out-of-sample.
-- **Model comparison** — accuracy against chance, the full metrics table, equity curves
-  versus Buy & Hold, and the confusion matrix.
+  and red where it did not, plus rolling accuracy for all three models against the
+  majority-class baseline. These come from the final-test model, so they are genuinely
+  out-of-sample.
+- **Models** — accuracy against the majority-class baseline, the full metrics table, equity
+  curves versus Buy & Hold, and the confusion matrix.
+- **How it works** — the pipeline diagram and the methodology in plain language.
+- **Screener** (separate view) — filter all 51 instruments by RSI level, or by Bollinger band
+  breach with a configurable period and sigma, and chart the breaching candles. These screens
+  read the indicator files directly, so they work for every instrument whether or not a model
+  has been fitted.
 
 **Refresh market data** in the sidebar re-downloads from Yahoo Finance, rebuilds the
 indicators, and re-runs the saved model, so the page is never stuck on an old session. It
@@ -258,20 +369,32 @@ src/
   recommend.py     direction -> BUY/SELL/HOLD
   predict.py       current call for an instrument
   run_pipeline.py  end-to-end orchestrator
-dashboard/app.py   Streamlit UI
-data/              raw/, processed/, predictions/
+  prepare_universe.py  bulk data prep for every instrument, no training
+  fetch_universe.py    refresh the NIFTY 50 constituent list
+dashboard/
+  app.py           Streamlit UI, views, caching, job launching
+  retro.py         styling, ASCII rendering, the Disha loading screen
+  screener.py      cross-sectional RSI and Bollinger screens
+  timeframes.py    multi-resolution chart data, including live intraday
+data/              raw/, processed/, predictions/, constituent + status JSON
 results/           metrics and confusion matrices
 saved_models/      trained models
+report/            project report (.docx/.pdf), figures, diagram generator
 ```
+
+Note that `data/raw/`, `data/processed/` and `saved_models/` are gitignored. They are
+rebuilt by `src.prepare_universe` and `src.run_pipeline`, as described under Setup.
 
 ## Tech Stack
 Python 3.12 · yfinance · pandas · pandas-ta · scikit-learn · xgboost · tensorflow ·
 plotly · streamlit
 
 ## Disclaimer
-Educational project output, not investment advice. Daily direction prediction is close to a
-coin flip; accuracy near 33% on a balanced three-class problem means the model has found
-little signal. Do not trade real money on this.
+Educational project output, not investment advice. Measured on the sealed test set, sixteen
+of twenty four model and instrument combinations are statistically indistinguishable from
+simply predicting the most common class every day, and only seven of twenty four beat buy
+and hold on risk-adjusted return once transaction costs are charged. Treat every call this
+system produces as a demonstration of method, not a signal. Do not trade real money on it.
 
 ## Team
 | Member | Role |
